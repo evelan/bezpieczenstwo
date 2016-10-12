@@ -8,9 +8,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class Encription {
-
-    EncriptionType encription;
-
-
+public class Request {
+    String request = "keys";
 }
