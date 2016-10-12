@@ -1,9 +1,7 @@
 package pl.pwr.server;
 
-import pl.pwr.common.connection.Connector;
-import pl.pwr.common.connection.ConnectorImpl;
-
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -15,20 +13,37 @@ public class Server {
     private ServerSocket server;
     private Socket socket;
 
-
     public void invoke() throws IOException, ClassNotFoundException {
         waitForClients();
+        waitForMessages();
+    }
 
-        Connector connector = new ConnectorImpl();
+    private void waitForMessages() throws IOException, ClassNotFoundException {
+        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
         String message;
-        do {
-            message = connector.waitForMessage(socket);
-        } while (message.length() == 0);
+        while (true) {
 
-        System.out.println("ODEBRANO: " + message);
+            try {
+                Thread.sleep(500);
+                message = (String) objectInputStream.readObject();
+            } catch (IOException ioe) {
+                continue;
+            } catch (InterruptedException e) {
+                continue;
+            }
 
-        closeConnection();
+            if (message.equals("end")) {
+                break;
+            }
+
+            if (message.length() > 0) {
+                System.out.println("Odebrano: " + message);
+            }
+        }
+
+        objectInputStream.close();
+
     }
 
     private void waitForClients() {

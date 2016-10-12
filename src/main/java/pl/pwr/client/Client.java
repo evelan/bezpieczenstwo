@@ -1,16 +1,9 @@
 package pl.pwr.client;
 
-import pl.pwr.common.connection.Connector;
-import pl.pwr.common.connection.ConnectorImpl;
-
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
 /**
@@ -22,12 +15,21 @@ public class Client {
 
     public void invoke() throws IOException, ClassNotFoundException, InterruptedException {
         connect();
+        sendMessages();
+    }
 
-        Connector connector = new ConnectorImpl();
-
+    private void sendMessages() throws IOException, ClassNotFoundException, InterruptedException {
         Scanner scanner = new Scanner(System.in);
-        String message = scanner.next();
-        connector.sendMessage(message, socket);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+
+        while (true) {
+            String message = scanner.next();
+            if (message.equals("end")) {
+                break;
+            }
+            objectOutputStream.writeObject(message);
+        }
+        objectOutputStream.close();
     }
 
     private void connect() {
@@ -36,8 +38,7 @@ public class Client {
             InetAddress host = InetAddress.getLocalHost();
             socket = new Socket(host.getHostName(), 9876);
         } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Connection failed: " + e.getMessage());
+            System.err.println("Failed: " + e.getMessage());
         }
         System.out.println("Connection successful");
     }
