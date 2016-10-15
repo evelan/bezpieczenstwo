@@ -1,5 +1,8 @@
 package pl.pwr.server;
 
+import pl.pwr.common.connection.sender.Sender;
+import pl.pwr.common.connection.sender.SenderImpl;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -14,16 +17,19 @@ public class Server {
     private Socket socket;
 
     public void invoke() throws IOException, ClassNotFoundException {
+        Sender sender = new SenderImpl(socket);
         waitForClients();
+        sender.sendPublicKeys("1", "2");
+        //Server listener thread waiting for secret key
+        sender.sendSecretKey("23");
         waitForMessages();
+        closeConnection();
     }
 
     private void waitForMessages() throws IOException, ClassNotFoundException {
         ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-
         String message;
         while (true) {
-
             try {
                 Thread.sleep(500);
                 message = (String) objectInputStream.readObject();
@@ -41,11 +47,13 @@ public class Server {
                 System.out.println("Odebrano: " + message);
             }
         }
-
         objectInputStream.close();
-
     }
 
+    //TODO run this in thread
+    /**
+     * Opens socket server on port 9876
+     */
     private void waitForClients() {
         System.out.println("Waiting for client request");
         try {
@@ -57,6 +65,9 @@ public class Server {
         }
     }
 
+    /**
+     * Closing connection and server
+     */
     private void closeConnection() {
         System.out.println("Close connection");
         try {

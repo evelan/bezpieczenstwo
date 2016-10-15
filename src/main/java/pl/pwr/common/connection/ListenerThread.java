@@ -15,15 +15,11 @@ public class ListenerThread extends Thread {
     public ListenerThread(Socket socket) {
         this.socket = socket;
         this.connector = new ConnectorImpl();
-
     }
 
     @Override
     public void run() {
-
-
         try {
-//            Thread.sleep(1000);
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
             String message;
@@ -38,7 +34,6 @@ public class ListenerThread extends Thread {
                     System.out.println("Odebrano: " + message);
                 }
             }
-
             objectInputStream.close();
         } catch (ClassNotFoundException e1) {
             System.err.println("Message casting error");
