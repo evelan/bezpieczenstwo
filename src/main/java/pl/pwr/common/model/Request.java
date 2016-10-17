@@ -1,13 +1,14 @@
 package pl.pwr.common.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * Created by Evelan on 12/10/2016.
  */
-@Getter
-@Setter
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Request {
     String request = "keys";
 }
