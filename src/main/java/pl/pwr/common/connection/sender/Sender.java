@@ -14,4 +14,6 @@ public interface Sender {
     void sendSecretKey(String secretKey);
 
     void sendPublicKeys(String p, String q);
+
+    void sendKeysRequest();
 }

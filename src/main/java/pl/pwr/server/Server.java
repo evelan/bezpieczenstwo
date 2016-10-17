@@ -1,10 +1,10 @@
 package pl.pwr.server;
 
+import pl.pwr.common.TalkFacade;
 import pl.pwr.common.connection.sender.Sender;
 import pl.pwr.common.connection.sender.SenderImpl;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -13,66 +13,39 @@ import java.net.Socket;
  */
 public class Server {
 
-    private ServerSocket server;
-    private Socket socket;
+    private ServerSocket serverSocket;
 
-    public void invoke() throws IOException, ClassNotFoundException {
-        Sender sender = new SenderImpl(socket);
-        waitForClients();
-        sender.sendPublicKeys("1", "2");
-        //Server listener thread waiting for secret key
-        sender.sendSecretKey("23");
-        waitForMessages();
-        closeConnection();
+    public void invoke() throws Exception {
+        Socket socket = getClientSocket(9878);
+        Sender sender = new SenderImpl(socket.getOutputStream());
+//        sender.sendPublicKeys("1", "2");
+        new TalkFacade(socket, sender).startTalking();
+//        sender.sendSecretKey("23");
+        closeConnection(socket);
     }
 
-    private void waitForMessages() throws IOException, ClassNotFoundException {
-        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-        String message;
-        while (true) {
-            try {
-                Thread.sleep(500);
-                message = (String) objectInputStream.readObject();
-            } catch (IOException ioe) {
-                continue;
-            } catch (InterruptedException e) {
-                continue;
-            }
-
-            if (message.equals("end")) {
-                break;
-            }
-
-            if (message.length() > 0) {
-                System.out.println("Odebrano: " + message);
-            }
-        }
-        objectInputStream.close();
-    }
-
-    //TODO run this in thread
-    /**
-     * Opens socket server on port 9876
-     */
-    private void waitForClients() {
+    private Socket getClientSocket(int portNumber) {
         System.out.println("Waiting for client request");
+        Socket socket;
         try {
-            int SERVER_PORT = 9876;
-            server = new ServerSocket(SERVER_PORT);
-            socket = server.accept();
+            serverSocket = new ServerSocket(portNumber);
+            socket = serverSocket.accept();
+            System.out.println("Client connected");
         } catch (IOException e) {
+            socket = new Socket();
             System.out.println("Server error");
         }
+        return socket;
     }
 
     /**
      * Closing connection and server
      */
-    private void closeConnection() {
+    private void closeConnection(Socket socket) {
         System.out.println("Close connection");
         try {
             socket.close();
-            server.close();
+            serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

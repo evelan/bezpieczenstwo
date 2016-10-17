@@ -1,4 +1,4 @@
-package pl.pwr.common.service.encryption;
+package pl.pwr.common.service.protocol;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 

@@ -1,4 +1,4 @@
-package pl.pwr.common.service.encryption;
+package pl.pwr.common.service.protocol;
 
 /**
  * Created by Evelan on 12/10/2016.
