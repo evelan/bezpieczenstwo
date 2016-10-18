@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PublicValue {
+public class PublicKey {
 
     @JsonProperty("p")
     String p;

@@ -1,10 +1,7 @@
 package pl.pwr.common.connection.sender;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pl.pwr.common.model.EncryptionType;
-import pl.pwr.common.model.Message;
-import pl.pwr.common.model.PublicValue;
-import pl.pwr.common.model.Request;
+import pl.pwr.common.model.*;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -17,7 +14,6 @@ public class SenderImpl implements Sender {
 
     private ObjectOutputStream objectOutputStream;
     private ObjectMapper objectMapper;
-
 
     public SenderImpl(OutputStream outputStream) {
         try {
@@ -41,19 +37,20 @@ public class SenderImpl implements Sender {
     }
 
     @Override
-    public void sendSecretKey(String secretKey) {
+    public void sendSecretKey(String key) {
+        SecretKey secretKey = new SecretKey(key);
         sendJSON(secretKey);
     }
 
     @Override
     public void sendPublicKeys(String p, String g) {
-        PublicValue publicValue = new PublicValue(p, g);
-        sendJSON(publicValue);
+        PublicKey publicKey = new PublicKey(p, g);
+        sendJSON(publicKey);
     }
 
     @Override
     public void sendKeysRequest() {
-        Request request = new Request("keys");
+        KeyRequest request = new KeyRequest("keys");
         sendJSON(request);
     }
 

@@ -9,6 +9,6 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Request {
+public class KeyRequest {
     String request = "keys";
 }

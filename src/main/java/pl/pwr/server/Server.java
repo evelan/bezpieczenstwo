@@ -1,8 +1,13 @@
 package pl.pwr.server;
 
 import pl.pwr.common.TalkFacade;
+import pl.pwr.common.connection.listener.Listener;
+import pl.pwr.common.connection.listener.ListenerImpl;
 import pl.pwr.common.connection.sender.Sender;
 import pl.pwr.common.connection.sender.SenderImpl;
+import pl.pwr.common.model.Encryption;
+import pl.pwr.common.model.KeyRequest;
+import pl.pwr.common.model.SecretKey;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -18,9 +23,34 @@ public class Server {
     public void invoke() throws Exception {
         Socket socket = getClientSocket(9878);
         Sender sender = new SenderImpl(socket.getOutputStream());
-//        sender.sendPublicKeys("1", "2");
+        Listener listener = new ListenerImpl(socket.getInputStream());
+
+        KeyRequest keyRequest = listener.waitForKeysRequest();
+        System.out.println("Received - keyRequest: " + keyRequest.getRequest());
+
+        Integer verySecret = 11;
+        Integer p = 10;
+        Integer q = 23;
+        sender.sendPublicKeys(p.toString(), q.toString());
+        System.out.println("Sending - public keys: " + p + ", " + q);
+
+        SecretKey secretKey = listener.waitForSecretKey();
+        System.out.println("Received - secret key: " + secretKey.getKey());
+
+        String secretKeyToSend = String.valueOf(q ^ verySecret % p);
+        sender.sendSecretKey(secretKeyToSend);
+        System.out.println("Sending - secret key: " + secretKeyToSend);
+
+        Integer B = Integer.valueOf(secretKey.getKey());
+//        B^a mod p = s
+        Integer s = B ^ verySecret % p;
+        System.out.println("S=" + s);
+
+        Encryption clientEcryption = listener.waitForEncryptionType();
+        System.out.println("Received - encryption type: " + clientEcryption.getEncryption());
+
+        System.out.println("Starting talk...");
         new TalkFacade(socket, sender).startTalking();
-//        sender.sendSecretKey("23");
         closeConnection(socket);
     }
 

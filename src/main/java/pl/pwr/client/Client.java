@@ -1,8 +1,13 @@
 package pl.pwr.client;
 
 import pl.pwr.common.TalkFacade;
+import pl.pwr.common.connection.listener.Listener;
+import pl.pwr.common.connection.listener.ListenerImpl;
 import pl.pwr.common.connection.sender.Sender;
 import pl.pwr.common.connection.sender.SenderImpl;
+import pl.pwr.common.model.EncryptionType;
+import pl.pwr.common.model.PublicKey;
+import pl.pwr.common.model.SecretKey;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -17,14 +22,35 @@ public class Client {
     public void invoke() throws Exception {
         Socket socket = connectToServer("localhost", 9878);
         Sender sender = new SenderImpl(socket.getOutputStream());
-
-        //waitForPublicKeys();
-        //wait for secret key
+        Listener listener = new ListenerImpl(socket.getInputStream());
 
         sender.sendKeysRequest();
-        sender.sendSecretKey("");
-        sender.sendEncryptionType(NONE);
+        System.out.println("Sending - key request");
 
+
+        PublicKey publicKey = listener.waitForPublicKeys();
+        Integer p = Integer.valueOf(publicKey.getP());
+        Integer q = Integer.valueOf(publicKey.getG());
+        System.out.println("Received - public key: " + p + ", " + q);
+
+        Integer verySecret = 23;
+        String secretKeyToSend = String.valueOf(q ^ verySecret % p);
+        sender.sendSecretKey(secretKeyToSend);
+        System.out.println("Sending - secret key: " + secretKeyToSend);
+
+        SecretKey secretKey = listener.waitForSecretKey();
+        System.out.println("Received - secret key: " + secretKey.getKey());
+
+//        Ab mod p = s
+        Integer A = Integer.valueOf(secretKey.getKey());
+        Integer s = A ^ verySecret % p;
+        System.out.println("S=" + s);
+
+        EncryptionType encryptionType = NONE;
+        sender.sendEncryptionType(encryptionType);
+        System.out.println("Sending - encryptionType: " + encryptionType);
+
+        System.out.println("Starting talk...");
         new TalkFacade(socket, sender).startTalking();
     }
 
