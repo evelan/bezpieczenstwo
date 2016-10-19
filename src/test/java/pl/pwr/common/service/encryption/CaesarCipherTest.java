@@ -32,4 +32,16 @@ public class CaesarCipherTest {
         Assert.assertEquals(expectedEncryptedText, encryptedROT3);
     }
 
+
+    @Test
+    public void testEncryptROTBiggerThan26() throws Exception {
+        Integer key = 54;
+        String plainText = "jhsjASSDASDASfasds";
+
+        CaesarCipher caesarCipher = new CaesarCipher();
+        String encrypted = caesarCipher.encrypt(plainText, key);
+
+        String expectedEncryptedText = "ljulCUUFCUFCUhcufu";
+        Assert.assertEquals(expectedEncryptedText, encrypted);
+    }
 }

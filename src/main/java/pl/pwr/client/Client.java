@@ -19,11 +19,22 @@ import static pl.pwr.common.model.EncryptionType.NONE;
  */
 public class Client {
 
+    private Sender sender;
+    private Listener listener;
+
     public void invoke() throws Exception {
         Socket socket = connectToServer("localhost", 9878);
-        Sender sender = new SenderImpl(socket.getOutputStream());
-        Listener listener = new ListenerImpl(socket.getInputStream());
+        sender = new SenderImpl(socket.getOutputStream());
+        listener = new ListenerImpl(socket.getInputStream());
 
+        authorizeToServer();
+
+        System.out.println("Starting talk...");
+        TalkFacade talkFacade = new TalkFacade(listener, sender);
+        talkFacade.startTalking();
+    }
+
+    private void authorizeToServer() throws IOException {
         sender.sendKeysRequest();
         System.out.println("Sending - key request");
 
@@ -32,7 +43,7 @@ public class Client {
         Integer q = Integer.valueOf(publicKey.getG());
         System.out.println("Received - public key: " + p + ", " + q);
 
-        Integer verySecret = 23;
+        Integer verySecret = 331;
         String secretKeyToSend = String.valueOf(q ^ verySecret % p);
         sender.sendSecretKey(secretKeyToSend);
         System.out.println("Sending - secret key: " + secretKeyToSend);
@@ -48,8 +59,6 @@ public class Client {
         sender.sendEncryptionType(encryptionType);
         System.out.println("Sending - encryptionType: " + encryptionType);
 
-        System.out.println("Starting talk...");
-        new TalkFacade(socket, sender).startTalking();
     }
 
     private Socket connectToServer(String host, int portNumber) {

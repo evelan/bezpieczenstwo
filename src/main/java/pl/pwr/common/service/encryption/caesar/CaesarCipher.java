@@ -12,7 +12,6 @@ import pl.pwr.common.service.encryption.caesar.operation.OperationSubstract;
  */
 public class CaesarCipher implements Encryption, Decryption {
 
-
     @Override
     public String decrypt(String encryptedMessage, Integer key) {
         return crypt(encryptedMessage, key, new OperationSubstract());
@@ -28,7 +27,7 @@ public class CaesarCipher implements Encryption, Decryption {
         key %= 26;
         char[] chars = text.toCharArray();
         for (int i = 0; i < chars.length; i++) {
-            chars[i] -= operationContext.executeOperation(chars[i], key);
+            chars[i] = operationContext.executeOperation(chars[i], key);
         }
         return String.valueOf(chars);
     }

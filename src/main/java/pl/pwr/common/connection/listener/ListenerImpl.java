@@ -6,6 +6,7 @@ import pl.pwr.common.model.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.Base64;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -73,10 +74,14 @@ public class ListenerImpl implements Listener {
     private String readFromStream() {
         String output;
         try {
-            output = (String) stream.readObject();
+//            output = (String) stream.readObject();
+            byte[] outputBytes = (byte[]) stream.readObject();
+            byte[] base64decodedBytes = Base64.getDecoder().decode(outputBytes);
+            output = new String(base64decodedBytes, "utf-8");
         } catch (Exception e) {
             output = "";
             System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
         return output;
     }

@@ -19,18 +19,29 @@ import java.net.Socket;
 public class Server {
 
     private ServerSocket serverSocket;
+    private Listener listener;
+    private Sender sender;
 
     public void invoke() throws Exception {
         Socket socket = getClientSocket(9878);
-        Sender sender = new SenderImpl(socket.getOutputStream());
-        Listener listener = new ListenerImpl(socket.getInputStream());
+        sender = new SenderImpl(socket.getOutputStream());
+        listener = new ListenerImpl(socket.getInputStream());
 
+        requestAuthorization();
+
+
+        System.out.println("Starting talk...");
+        TalkFacade talkFacade = new TalkFacade(listener, sender);
+        talkFacade.startTalking();
+    }
+
+    private void requestAuthorization() throws IOException {
         KeyRequest keyRequest = listener.waitForKeysRequest();
         System.out.println("Received - keyRequest: " + keyRequest.getRequest());
 
         Integer verySecret = 11;
-        Integer p = 10;
-        Integer q = 23;
+        Integer p = 847841;
+        Integer q = 1423841;
         sender.sendPublicKeys(p.toString(), q.toString());
         System.out.println("Sending - public keys: " + p + ", " + q);
 
@@ -49,9 +60,6 @@ public class Server {
         Encryption clientEncryption = listener.waitForEncryptionType();
         System.out.println("Received - encryption type: " + clientEncryption.getEncryption());
 
-        System.out.println("Starting talk...");
-        new TalkFacade(socket, sender).startTalking();
-        closeConnection(socket);
     }
 
     private Socket getClientSocket(int portNumber) {

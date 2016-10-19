@@ -11,18 +11,29 @@ public class UserInputThread extends Thread {
 
     private Scanner scanner;
     private Sender sender;
+    private boolean isInteracting;
 
     public UserInputThread(Sender sender) {
         scanner = new Scanner(System.in);
         this.sender = sender;
+        isInteracting = true;
     }
 
     @Override
     public void run() {
-        while (true) {
-            String plainMessage = scanner.next();
-            sender.sendMessage(plainMessage);
-            System.out.println("Message sent: " + plainMessage);
+        while (isInteracting) {
+            try {
+                String plainMessage = scanner.next();
+                sender.sendMessage(plainMessage);
+                System.out.println("Message sent: " + plainMessage);
+            }catch (Exception e){
+                e.printStackTrace();
+                stopInteracting();
+            }
         }
+    }
+
+    public void stopInteracting() {
+        isInteracting = false;
     }
 }
