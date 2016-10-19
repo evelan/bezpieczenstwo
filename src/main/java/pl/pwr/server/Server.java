@@ -46,8 +46,8 @@ public class Server {
         Integer s = B ^ verySecret % p;
         System.out.println("S=" + s);
 
-        Encryption clientEcryption = listener.waitForEncryptionType();
-        System.out.println("Received - encryption type: " + clientEcryption.getEncryption());
+        Encryption clientEncryption = listener.waitForEncryptionType();
+        System.out.println("Received - encryption type: " + clientEncryption.getEncryption());
 
         System.out.println("Starting talk...");
         new TalkFacade(socket, sender).startTalking();

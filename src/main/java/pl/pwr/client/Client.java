@@ -27,7 +27,6 @@ public class Client {
         sender.sendKeysRequest();
         System.out.println("Sending - key request");
 
-
         PublicKey publicKey = listener.waitForPublicKeys();
         Integer p = Integer.valueOf(publicKey.getP());
         Integer q = Integer.valueOf(publicKey.getG());
@@ -41,7 +40,6 @@ public class Client {
         SecretKey secretKey = listener.waitForSecretKey();
         System.out.println("Received - secret key: " + secretKey.getKey());
 
-//        Ab mod p = s
         Integer A = Integer.valueOf(secretKey.getKey());
         Integer s = A ^ verySecret % p;
         System.out.println("S=" + s);

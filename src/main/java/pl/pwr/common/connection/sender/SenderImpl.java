@@ -6,6 +6,7 @@ import pl.pwr.common.model.*;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Base64;
 
 /**
  * Created by Evelan on 15/10/2016.
@@ -25,10 +26,16 @@ public class SenderImpl implements Sender {
     }
 
     @Override
-    public void sendMessage(String plainMessage) {
-        Message message = new Message(plainMessage, "anonymous");
+    public void sendMessage(String plainMessage, String from) {
+        Message message = new Message(plainMessage, from);
         sendJSON(message);
     }
+
+    @Override
+    public void sendMessage(String plainMessage) {
+        sendMessage(plainMessage, "anonymous");
+    }
+
 
     @Override
     public void sendEncryptionType(EncryptionType encryptionType) {
@@ -57,7 +64,8 @@ public class SenderImpl implements Sender {
     private void sendJSON(Object object) {
         try {
             String json = objectMapper.writeValueAsString(object);
-            objectOutputStream.writeObject(json);
+            byte[] jsonInBase64 = Base64.getEncoder().encode(json.getBytes());
+            objectOutputStream.writeObject(jsonInBase64);
         } catch (IOException e) {
             e.printStackTrace();
         }

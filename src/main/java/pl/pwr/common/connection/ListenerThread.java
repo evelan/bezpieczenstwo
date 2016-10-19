@@ -22,6 +22,8 @@ public class ListenerThread extends Thread implements MessageFilterObserver {
     private List<MessageFilter> messageFilterList;
     private ObjectMapper objectMapper;
 
+    private boolean isListening = true;
+
     public ListenerThread(InputStream inputStream) throws IOException {
         System.out.println("Listener started...");
         objectInputStream = new ObjectInputStream(inputStream);
@@ -31,40 +33,36 @@ public class ListenerThread extends Thread implements MessageFilterObserver {
 
     @Override
     public void run() {
-        waitForMessage();
-    }
-
-
-    private void waitForMessage() {
-        Message message;
-        String jsonMessage;
-        while (true) {
-            try {
-                Thread.sleep(500);
-                jsonMessage = (String) objectInputStream.readObject();
-
-            } catch (Exception ioe) {
-                continue;
-            }
-
-            try {
-                message = objectMapper.readValue(jsonMessage, Message.class);
-                if (isNotBlank(jsonMessage)) {
-                    displayMessage(message);
-                }
-
-                if (jsonMessage.equals("end")) {
-                    break;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         try {
-            objectInputStream.close();
+            waitForMessage();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private void waitForMessage() throws IOException {
+        Message message;
+        String jsonMessage = null;
+        while (true) {
+
+            try {
+                Thread.sleep(500);
+                jsonMessage = (String) objectInputStream.readObject();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            message = objectMapper.readValue(jsonMessage, Message.class);
+            if (isNotBlank(jsonMessage)) {
+                displayMessage(message);
+            }
+
+            if (!isListening) {
+                break;
+            }
+        }
+        objectInputStream.close();
     }
 
     private void displayMessage(Message message) {
