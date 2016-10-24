@@ -4,13 +4,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import pl.pwr.common.service.encryption.caesar.CaesarCipher;
 
+import java.math.BigInteger;
+
 /**
  * Created by Evelan on 19/10/2016.
  */
 public class CaesarCipherTest {
     @Test
     public void testDecryptROT3() throws Exception {
-        Integer key = 3;
+        BigInteger key = BigInteger.valueOf(3);
         String encryptedText = "mdnxe";
 
         CaesarCipher caesarCipher = new CaesarCipher();
@@ -22,7 +24,7 @@ public class CaesarCipherTest {
 
     @Test
     public void testEncryptROT3() throws Exception {
-        Integer key = 3;
+        BigInteger key = BigInteger.valueOf(3);
         String plainText = "jakub";
 
         CaesarCipher caesarCipher = new CaesarCipher();
@@ -35,7 +37,7 @@ public class CaesarCipherTest {
 
     @Test
     public void testEncryptROTBiggerThan26() throws Exception {
-        Integer key = 54;
+        BigInteger key = BigInteger.valueOf(54);
         String plainText = "jhsjASSDASDASfasds";
 
         CaesarCipher caesarCipher = new CaesarCipher();

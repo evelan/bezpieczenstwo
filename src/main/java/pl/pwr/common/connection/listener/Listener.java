@@ -11,7 +11,7 @@ public interface Listener {
 
     Message waitForMessage() throws IOException;
 
-    Encryption waitForEncryptionType() throws IOException;
+    EncryptionType waitForEncryptionType() throws IOException;
 
     SecretKey waitForSecretKey() throws IOException;
 

@@ -34,9 +34,10 @@ public class ListenerImpl implements Listener {
     }
 
     @Override
-    public Encryption waitForEncryptionType() throws IOException {
+    public EncryptionType waitForEncryptionType() throws IOException {
         String json = waitForJson();
-        return objectMapper.readValue(json, Encryption.class);
+        Encryption encryption = objectMapper.readValue(json, Encryption.class);
+        return encryption.getEncryption();
     }
 
     @Override
@@ -63,26 +64,26 @@ public class ListenerImpl implements Listener {
         return objectMapper.readValue(json, clazz);
     }
 
-    private String waitForJson() {
-        String output;
+    private String waitForJson() throws IOException {
+        String output = "";
         do {
-            output = readFromStream();
+            try {
+                output = readFromStream();
+            } catch (Exception e) {
+                System.err.println("Connection ended");
+
+                break;
+            }
         } while (isBlank(output));
         return output;
     }
 
-    private String readFromStream() {
+    private String readFromStream() throws IOException, ClassNotFoundException {
         String output;
-        try {
-//            output = (String) stream.readObject();
-            byte[] outputBytes = (byte[]) stream.readObject();
-            byte[] base64decodedBytes = Base64.getDecoder().decode(outputBytes);
-            output = new String(base64decodedBytes, "utf-8");
-        } catch (Exception e) {
-            output = "";
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
-        }
+        byte[] outputBytes;
+        outputBytes = (byte[]) stream.readObject();
+        byte[] base64decodedBytes = Base64.getDecoder().decode(outputBytes);
+        output = new String(base64decodedBytes, "utf-8");
         return output;
     }
 }

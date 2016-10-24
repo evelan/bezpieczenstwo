@@ -10,7 +10,7 @@ public class ClientStart {
         try {
             client.invoke();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Something go REALLY wrong: " + e.getMessage());
         }
     }
 }

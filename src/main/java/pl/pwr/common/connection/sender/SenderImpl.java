@@ -32,12 +32,6 @@ public class SenderImpl implements Sender {
     }
 
     @Override
-    public void sendMessage(String plainMessage) {
-        sendMessage(plainMessage, "anonymous");
-    }
-
-
-    @Override
     public void sendEncryptionType(EncryptionType encryptionType) {
         pl.pwr.common.model.Encryption encryption = new pl.pwr.common.model.Encryption(encryptionType);
         sendJSON(encryption);

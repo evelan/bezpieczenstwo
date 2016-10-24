@@ -9,8 +9,6 @@ public interface Sender {
 
     void sendMessage(String message, String from);
 
-    void sendMessage(String plainMessage);
-
     void sendEncryptionType(EncryptionType encryptionType);
 
     void sendSecretKey(String secretKey);
