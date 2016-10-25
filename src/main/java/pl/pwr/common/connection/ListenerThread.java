@@ -42,7 +42,7 @@ public class ListenerThread extends Thread implements MessageFilterObserver {
                 displayMessage(message);
             } catch (Exception e) {
                 stopListening();
-                e.printStackTrace();
+                System.out.print("End connection");
             }
         }
 

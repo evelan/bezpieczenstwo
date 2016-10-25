@@ -5,6 +5,7 @@ import pl.pwr.common.connection.UserInputThread;
 import pl.pwr.common.connection.listener.Listener;
 import pl.pwr.common.connection.sender.Sender;
 import pl.pwr.common.model.Authorization;
+import pl.pwr.common.service.filter.TestMessageFilter;
 
 /**
  * Created by Evelan on 17/10/2016.
@@ -24,6 +25,8 @@ public class TalkFacade {
         try {
             ListenerThread listenerThread = new ListenerThread(listener, authorization);
             UserInputThread userInteraction = new UserInputThread(sender, authorization, name);
+
+            listenerThread.registerMessageFilter(new TestMessageFilter());
 
             listenerThread.start();
             userInteraction.start();

@@ -37,13 +37,13 @@ public class UserInputThread extends Thread {
                 sender.sendMessage(encryptedMessage, name);
                 System.out.println("Message sent: " + plainMessage);
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("Stop interacting...");
                 stopInteracting();
             }
         }
     }
 
-    public void stopInteracting() {
+    private void stopInteracting() {
         isInteracting = false;
     }
 }

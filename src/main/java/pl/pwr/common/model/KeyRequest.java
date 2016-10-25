@@ -1,5 +1,6 @@
 package pl.pwr.common.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 /**
@@ -10,5 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KeyRequest {
+
+    @JsonProperty("request")
     String request = "keys";
 }

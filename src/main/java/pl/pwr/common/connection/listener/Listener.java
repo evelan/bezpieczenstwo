@@ -13,7 +13,7 @@ public interface Listener {
 
     EncryptionType waitForEncryptionType() throws IOException;
 
-    SecretKey waitForSecretKey() throws IOException;
+    SecretKey waitForSecretKey();
 
     PublicKey waitForPublicKeys() throws IOException;
 

@@ -41,9 +41,13 @@ public class ListenerImpl implements Listener {
     }
 
     @Override
-    public SecretKey waitForSecretKey() throws IOException {
-        String json = waitForJson();
-        return objectMapper.readValue(json, SecretKey.class);
+    public SecretKey waitForSecretKey() {
+        try {
+            String json = waitForJson();
+            return objectMapper.readValue(json, SecretKey.class);
+        } catch (IOException ignored) {
+        }
+        return new SecretKey();
     }
 
     @Override
@@ -59,9 +63,14 @@ public class ListenerImpl implements Listener {
     }
 
     @Override
-    public Object waitFor(Class<?> clazz) throws IOException {
-        String json = waitForJson();
-        return objectMapper.readValue(json, clazz);
+    public Object waitFor(Class<?> clazz) {
+        try {
+            String json = waitForJson();
+            return objectMapper.readValue(json, clazz);
+        } catch (IOException e) {
+            System.out.println("Wrong data");
+        }
+        return null;
     }
 
     private String waitForJson() throws IOException {
