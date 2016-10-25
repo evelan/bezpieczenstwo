@@ -2,9 +2,6 @@
 
 Aplikacja: komunikator sieciowy z protokołem wymiany kluczy diffiego-hellmana
 
-
-### Jak skompilować
-
 ### Jak uruchomić
 
 Serwer:
