@@ -18,5 +18,5 @@ Adres serwera i port są opcjonalne, jeśli ich nie bedzie zostaną użyte domy�
 
 
 ### Wymagania
-Java 1.8.0_102 (vendor: Oracle Corp.)
-Maven 3.3.9
+* Java 1.8.0_102 (vendor: Oracle Corp.)
+* Maven 3.3.9
