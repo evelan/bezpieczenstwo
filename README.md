@@ -17,6 +17,13 @@ Klient:
 Adres serwera i port są opcjonalne, jeśli ich nie bedzie zostaną użyte domyślne wartosci czyli localhost:9000
 
 
+### Jak skompilować
+
+* Pobrać projekt
+* Otworzyć w IntelJ IDEA 
+* Kliknąć Buil -> Build artifact... -> All -> Build...
+
 ### Wymagania
 * Java 1.8.0_102 (vendor: Oracle Corp.)
 * Maven 3.3.9
+* InteliJ IDEA - w celu kompilacji 
