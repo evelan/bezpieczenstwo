@@ -19,5 +19,4 @@ public interface Listener {
 
     KeyRequest waitForKeysRequest() throws IOException;
 
-    Object waitFor(Class<?> clazz) throws IOException;
 }

@@ -16,9 +16,7 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static pl.pwr.common.DHProtocol.calculateSecret;
 import static pl.pwr.common.DHProtocol.generatePrime;
@@ -28,33 +26,50 @@ import static pl.pwr.common.DHProtocol.generatePrime;
  */
 public class Server {
 
-    private ServerSocket serverSocket;
     private Listener listener;
     private Sender sender;
 
-    void invoke(int port) throws Exception {
-        Socket socket = getClientSocket(port);
-        connectClient(socket);
+    /**
+     * Acquire client socket and connect client
+     *
+     * @param serverPortNumber - server address
+     * @throws Exception
+     */
+    void invoke(int serverPortNumber) throws Exception {
+        Socket clientSocket = getClientSocket(serverPortNumber);
+        connectClient(clientSocket);
     }
 
-    private void connectClient(Socket socket) throws Exception {
-        sender = new SenderImpl(socket.getOutputStream());
-        listener = new ListenerImpl(socket.getInputStream());
+    /**
+     * Connecting client
+     *
+     * @param clientSocket - clientSocket
+     * @throws Exception
+     */
+    private void connectClient(Socket clientSocket) throws Exception {
+        sender = new SenderImpl(clientSocket.getOutputStream());
+        listener = new ListenerImpl(clientSocket.getInputStream());
 
-        Authorization authorization;
+        Authorization clientAuthorization;
         try {
-            authorization = requestAuthorization();
+            clientAuthorization = requestAuthorization();
         } catch (Exception e) {
             System.err.println("Authorization problem, encryption: NONE -> " + e.getMessage());
-            authorization = new Authorization();
+            clientAuthorization = new Authorization();
         }
 
         System.out.println("Starting talk...");
         TalkFacade talkFacade = new TalkFacade(listener, sender);
-        talkFacade.startTalking(authorization, "Server");
+        talkFacade.startTalking(clientAuthorization, "Server");
     }
 
-    private Authorization requestAuthorization() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    /**
+     * Authorize client, Diffie-Hellman protocol
+     *
+     * @return authorization with populated EncryptionProvider and key
+     * @throws Exception
+     */
+    private Authorization requestAuthorization() throws Exception {
         listener.waitForKeysRequest();
 
         BigInteger verySecret = generatePrime();
@@ -71,38 +86,28 @@ public class Server {
         BigInteger B = new BigInteger(secretKey.get(5, TimeUnit.SECONDS).getKey());
         BigInteger s = calculateSecret(B, verySecret, p);
 
+        boolean lessThanZero = s.signum() != 1;
+        if (lessThanZero) {
+            throw new IllegalArgumentException("Secret key <0");
+        }
+
         EncryptionType encryptionType = listener.waitForEncryptionType();
         EncryptionProvider encryptionProvider = EncryptionFactory.getProvider(encryptionType);
         return new Authorization(encryptionProvider, s);
     }
 
 
-    private Socket getClientSocket(int portNumber) {
+    /**
+     * Getting client socket
+     *
+     * @param clientPortNumber
+     * @return client socket
+     */
+    private Socket getClientSocket(int clientPortNumber) throws IOException {
         System.out.println("Waiting for client request");
-        Socket socket;
-        try {
-            serverSocket = new ServerSocket(portNumber);
-            socket = serverSocket.accept();
-            System.out.println("Client connected");
-        } catch (IOException e) {
-            socket = new Socket();
-            System.out.println("Server error");
-        }
+        ServerSocket serverSocket = new ServerSocket(clientPortNumber);
+        Socket socket = serverSocket.accept();
+        System.out.println("Client connected");
         return socket;
     }
-
-    /**
-     * Closing connection and server
-     */
-    private void closeConnection(Socket socket) {
-        System.out.println("Close connection");
-        try {
-            socket.close();
-            serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
 }

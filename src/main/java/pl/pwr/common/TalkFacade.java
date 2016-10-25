@@ -21,18 +21,18 @@ public class TalkFacade {
         this.sender = sender;
     }
 
-    public void startTalking(Authorization authorization, String name) {
-        try {
-            ListenerThread listenerThread = new ListenerThread(listener, authorization);
-            UserInputThread userInteraction = new UserInputThread(sender, authorization, name);
-
-            listenerThread.registerMessageFilter(new TestMessageFilter());
-
-            listenerThread.start();
-            userInteraction.start();
-            userInteraction.join();
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-        }
+    /**
+     * Talking facade
+     *
+     * @param authorization - choosen encyrption by user with key
+     * @param name          - message author
+     */
+    public void startTalking(Authorization authorization, String name) throws InterruptedException {
+        ListenerThread listenerThread = new ListenerThread(listener, authorization);
+        UserInputThread userInteraction = new UserInputThread(sender, authorization, name);
+        listenerThread.registerMessageFilter(new TestMessageFilter());
+        listenerThread.start();
+        userInteraction.start();
+        userInteraction.join();
     }
 }

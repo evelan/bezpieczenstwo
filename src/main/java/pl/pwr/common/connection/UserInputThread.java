@@ -28,6 +28,11 @@ public class UserInputThread extends Thread {
         this.name = name;
     }
 
+    /**
+     * 1. Get user input
+     * 2. encrypt
+     * 3. send message
+     */
     @Override
     public void run() {
         while (isInteracting) {
@@ -43,6 +48,9 @@ public class UserInputThread extends Thread {
         }
     }
 
+    /**
+     * Stop loop which interact with user
+     */
     private void stopInteracting() {
         isInteracting = false;
     }

@@ -16,12 +16,8 @@ public class SenderImpl implements Sender {
     private ObjectOutputStream objectOutputStream;
     private ObjectMapper objectMapper;
 
-    public SenderImpl(OutputStream outputStream) {
-        try {
-            objectOutputStream = new ObjectOutputStream(outputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public SenderImpl(OutputStream outputStream) throws IOException {
+        objectOutputStream = new ObjectOutputStream(outputStream);
         objectMapper = new ObjectMapper();
     }
 
@@ -61,7 +57,7 @@ public class SenderImpl implements Sender {
             byte[] jsonInBase64 = Base64.getEncoder().encode(json.getBytes());
             objectOutputStream.writeObject(jsonInBase64);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("No body is connected!");
         }
     }
 }

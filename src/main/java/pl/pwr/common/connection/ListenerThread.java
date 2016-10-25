@@ -7,7 +7,6 @@ import pl.pwr.common.service.encryption.EncryptionProvider;
 import pl.pwr.common.service.filter.MessageFilter;
 import pl.pwr.common.service.filter.MessageFilterObserver;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ public class ListenerThread extends Thread implements MessageFilterObserver {
     private EncryptionProvider encryptionProvider;
     private BigInteger key;
 
-    public ListenerThread(Listener listener, Authorization authorization) throws IOException {
+    public ListenerThread(Listener listener, Authorization authorization) {
         System.out.println("Listener started...");
         this.listener = listener;
         messageFilterList = new ArrayList<>();
@@ -32,6 +31,11 @@ public class ListenerThread extends Thread implements MessageFilterObserver {
         this.key = authorization.getKey();
     }
 
+    /**
+     * 1. Read from socket
+     * 2. decrypt
+     * 3. display message
+     */
     @Override
     public void run() {
         while (isListening) {
@@ -42,31 +46,51 @@ public class ListenerThread extends Thread implements MessageFilterObserver {
                 displayMessage(message);
             } catch (Exception e) {
                 stopListening();
-                System.out.print("End connection");
             }
         }
 
     }
 
+    /**
+     * Process plain text message by all filters and displays it
+     *
+     * @param message message object
+     */
     private void displayMessage(Message message) {
         String plainText = message.getMsg();
         for (MessageFilter messageFilter : messageFilterList) {
             plainText = messageFilter.doFilter(plainText);
         }
-        System.out.print("\n" + message.getFrom() + " says: " + plainText);
+        System.out.println("\n" + message.getFrom() + " says: " + plainText);
     }
 
+    /**
+     * Observer pattern
+     * Registering message filters
+     *
+     * @param messageFilter implementation of MessageFilter interface
+     */
     @Override
     public void registerMessageFilter(MessageFilter messageFilter) {
         messageFilterList.add(messageFilter);
     }
 
+
+    /**
+     * Observer pattern
+     * Unregistering message filter
+     *
+     * @param messageFilter implementation of MessageFilter interface
+     */
     @Override
     public void unregisterMessageFilter(MessageFilter messageFilter) {
         messageFilterList.remove(messageFilter);
     }
 
-    public void stopListening() {
+    /**
+     * Stop reading from socket
+     */
+    private void stopListening() {
         isListening = false;
     }
 }

@@ -19,23 +19,24 @@ public class XorCipher implements EncryptionProvider {
         return new String(xorMessageWithKey(plainText, key));
     }
 
+    /**
+     * Xor Encyrption
+     *
+     * @param message - plain or encrypted message
+     * @param key     - key
+     * @return encrypted or plain message
+     */
     private byte[] xorMessageWithKey(String message, BigInteger key) {
         byte[] messageBytes = message.getBytes();
-        byte[] outputMessage = new byte[messageBytes.length];
-        byte[] keyBytes = intToByteArray(key.intValue());
+        byte[] outputMessage = messageBytes.clone();
+        byte[] keyBytes = key.toByteArray();
+        byte lastKeyByte = keyBytes[keyBytes.length - 1];
+
         for (int i = 0; i < messageBytes.length; i++) {
-            byte xorMessageAndKey = (byte) (messageBytes[i] ^ keyBytes[keyBytes.length - 1]);
+            byte xorMessageAndKey = (byte) (messageBytes[i] ^ lastKeyByte);
             outputMessage[i] = xorMessageAndKey;
         }
         return outputMessage;
-    }
-
-    private byte[] intToByteArray(int value) {
-        return new byte[]{
-                (byte) (value >>> 24),
-                (byte) (value >>> 16),
-                (byte) (value >>> 8),
-                (byte) value};
     }
 
 }

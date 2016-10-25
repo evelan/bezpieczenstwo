@@ -18,9 +18,7 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static pl.pwr.common.DHProtocol.calculateSecret;
 import static pl.pwr.common.DHProtocol.generatePrime;
@@ -39,6 +37,7 @@ public class Client {
         Socket socket = connectToServer(host, port);
         sender = new SenderImpl(socket.getOutputStream());
         listener = new ListenerImpl(socket.getInputStream());
+
         EncryptionType encryptionType = getUserEncryptionType();
 
         Authorization authorization;
@@ -49,12 +48,26 @@ public class Client {
             authorization = new Authorization();
         }
 
-        System.out.println("Starting talk...");
-        TalkFacade talkFacade = new TalkFacade(listener, sender);
-        talkFacade.startTalking(authorization, "Client");
+        talk(authorization);
     }
 
-    private Authorization authorizeToServer(EncryptionType encryptionType) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    private void talk(Authorization authorization) {
+        try {
+            TalkFacade talkFacade = new TalkFacade(listener, sender);
+            talkFacade.startTalking(authorization, "Client");
+        } catch (Exception e) {
+            System.err.println("There was a problem: " + e);
+            talk(authorization);
+        }
+    }
+
+    /**
+     * Authorization client to server
+     *
+     * @param encryptionType - choosen encryption type by client
+     * @return - authorization with populated key and encryption provider
+     */
+    private Authorization authorizeToServer(EncryptionType encryptionType) throws Exception {
         sender.sendKeysRequest();
         PublicKey publicKey = listener.waitForPublicKeys();
         BigInteger p = new BigInteger(publicKey.getP());
@@ -71,12 +84,22 @@ public class Client {
         BigInteger A = new BigInteger(secretKey.get(5, TimeUnit.SECONDS).getKey());
         BigInteger s = calculateSecret(A, verySecret, p);
 
+        boolean lessThanZero = s.signum() != 1;
+        if (lessThanZero) {
+            throw new IllegalArgumentException("Secret key <0");
+        }
+
         sender.sendEncryptionType(encryptionType);
         EncryptionProvider encryptionProvider = EncryptionFactory.getProvider(encryptionType);
         return new Authorization(encryptionProvider, s);
     }
 
 
+    /**
+     * Casting user input to EncryptionType
+     *
+     * @return choosen encryption type by user
+     */
     private EncryptionType getUserEncryptionType() {
         EncryptionType encryptionType;
         try {
@@ -93,21 +116,26 @@ public class Client {
         return encryptionType;
     }
 
+    /**
+     * Get user String input
+     *
+     * @return user Stirng input
+     */
     private String getUserInput() {
         Scanner scanner = new Scanner(System.in);
         return scanner.next();
     }
 
-    private Socket connectToServer(String host, int portNumber) {
+    /**
+     * Connecting to server
+     *
+     * @param serverAddress    - server address
+     * @param serverPortNumber - server port number
+     * @return sever socket
+     * @throws IOException when there is no server at this address or/and port
+     */
+    private Socket connectToServer(String serverAddress, int serverPortNumber) throws IOException {
         System.out.println("Connecting to server...");
-        Socket socket;
-        try {
-            socket = new Socket(host, portNumber);
-        } catch (IOException e) {
-            socket = new Socket();
-            System.err.println("Failed: " + e.getMessage());
-        }
-        System.out.println("Connection successful");
-        return socket;
+        return new Socket(serverAddress, serverPortNumber);
     }
 }

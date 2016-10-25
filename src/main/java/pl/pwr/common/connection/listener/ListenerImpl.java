@@ -18,12 +18,8 @@ public class ListenerImpl implements Listener {
     private ObjectInputStream stream;
     private ObjectMapper objectMapper;
 
-    public ListenerImpl(InputStream inputStream) {
-        try {
-            stream = new ObjectInputStream(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public ListenerImpl(InputStream inputStream) throws IOException {
+        stream = new ObjectInputStream(inputStream);
         objectMapper = new ObjectMapper();
     }
 
@@ -62,31 +58,24 @@ public class ListenerImpl implements Listener {
         return objectMapper.readValue(json, KeyRequest.class);
     }
 
-    @Override
-    public Object waitFor(Class<?> clazz) {
-        try {
-            String json = waitForJson();
-            return objectMapper.readValue(json, clazz);
-        } catch (IOException e) {
-            System.out.println("Wrong data");
-        }
-        return null;
-    }
-
     private String waitForJson() throws IOException {
         String output = "";
         do {
             try {
                 output = readFromStream();
             } catch (Exception e) {
-                System.err.println("Connection ended");
-
+                System.err.println("Connection ended by remote client/server");
                 break;
             }
         } while (isBlank(output));
         return output;
     }
 
+    /**
+     * Reading from stream and decoding from Base64
+     *
+     * @return plain JSON string
+     */
     private String readFromStream() throws IOException, ClassNotFoundException {
         String output;
         byte[] outputBytes;
